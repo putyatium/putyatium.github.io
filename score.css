@@ -47,17 +47,15 @@ p
 
 hr
 {
-    width: 100%;
+    visibility: collapse;
     border: 0;
     height: 0;
-    padding: 0 0 0.1em 0;
-    margin: 0 0 0.4em 0;
-    background-color: silver;
 }
 
 hr.page
 {
     page-break-before: always;
+    width: 100%;
     padding: 0 0 0.1em 0;
     margin: 0 0 0.4em 0;
     background-color: silver;
@@ -114,7 +112,7 @@ button
     min-width: 2em;
 }
 
-.active
+button.active
 {
     background-color: lightsalmon;
 }

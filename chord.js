@@ -111,18 +111,8 @@ function replacement(match, pos, group)
         return "?";
     }
 
-    index += code_tbl_1.length;
-
-    const code = String(match);
-    if(code.includes("♭"))
-    {
-        index--;
-    }
-    if(code.includes("♯"))
-    {
-        index++;
-    }
     index += offset;
+    index += code_tbl_1.length;
     index %= code_tbl_1.length;
     return code_tbl_1[index];
 }
