@@ -12,7 +12,8 @@ window.addEventListener("load", () =>
     }
 
     let ctrl = document.createElement("div");
-    ctrl.style.float = "right";
+    //ctrl.style.float = "right";
+    ctrl.className = "chord";
     for(let i = -6; i <= 6; i++)
     {
         ctrl.appendChild(createButton(i));

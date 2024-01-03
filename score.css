@@ -101,6 +101,10 @@ table > tbody > tr > td
     {
         visibility: collapse;
     }
+    .chord
+    {
+        visibility: collapse;
+    }
 }
 
 button
@@ -110,9 +114,22 @@ button
     line-height: 85%;
     padding: 0.2em;
     min-width: 2em;
+    margin: 0;
 }
 
 button.active
 {
-    background-color: lightsalmon;
+    background-color: lightsteelblue;
+}
+
+.chord
+{
+    position: fixed;
+    top: 0.4em;
+    right: 0.4em;
+    box-shadow: -0.2em 0.2em 0.6em rgba(0, 0, 0, .4);
+    z-index: 10;
+    background: steelblue;
+    border-radius: 0.2em;
+    padding: 0 0.2em 0.1em 0.2em;
 }
