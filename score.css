@@ -1,0 +1,120 @@
+body
+{
+    font-family: "Meiryo";
+    background: white;
+    border: solid silver;
+    border-width: 0 0 0 0.1em;
+    padding: 0;
+    overflow: auto;
+    letter-spacing: -0.2em;
+}
+
+h1
+{
+    font-size: 100%;
+    padding: 0 0.2em 0 0.2em;
+    margin: 0 0 0.4em 0;
+    background: silver;
+    color:white;
+    font-weight: bold;
+    letter-spacing: normal;
+}
+
+p
+{
+    margin: 0;
+    padding: 0 0 0 0.2em;
+    white-space: nowrap;
+    line-height: 240%;
+    color: black !important;
+    display: inline-block;
+    letter-spacing: normal;
+    min-width: 50%;
+}
+
+.r
+{
+    min-width: auto;
+}
+
+.col
+{
+    min-width: auto;
+    border: solid silver;
+    border-width: 0 0 0 0.1em;
+    padding: 0 0 0 0.2em;
+}
+
+hr
+{
+    width: 100%;
+    border: 0;
+    height: 0;
+    padding: 0 0 0.1em 0;
+    margin: 0 0 0.4em 0;
+    background-color: silver;
+}
+
+hr.page
+{
+    page-break-before: always;
+    padding: 0 0 0.1em 0;
+    margin: 0 0 0.4em 0;
+    background-color: silver;
+}
+
+table > thead > tr > th
+{
+    width: 50em;
+    height : 0;
+    visibility: collapse;
+    line-height: 0;
+    border-bottom-color: rgb(243, 42, 42);
+}
+
+table > tbody > tr > td
+{
+    padding-top: 0.8em;
+}
+
+:not(pre):not(.hljs) > code
+{
+    font-feature-settings: "palt";
+    font-family: Consolas, "Yu Gothic", "Liberation Mono", Menlo, Courier, monospace;
+    background-color: cornflowerblue;
+    color: white;
+    font-size: 85%;
+    font-weight: bold;
+    padding: 0;
+    margin: 0 -1em 0 0;
+    display: inline-block;
+    min-width: 1.6em;
+    text-align: center;
+    line-height: 100%;
+    position: relative;
+    top: -1.3em;
+    padding: 0 0.2em 0 0.2em;
+    border-radius: 0.3em;
+}
+
+@media print
+{
+    button
+    {
+        visibility: collapse;
+    }
+}
+
+button
+{
+    font-family: Consolas, "Yu Gothic", "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 85%;
+    line-height: 85%;
+    padding: 0.2em;
+    min-width: 2em;
+}
+
+.active
+{
+    background-color: lightsalmon;
+}
