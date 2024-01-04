@@ -50,6 +50,8 @@ hr
     visibility: collapse;
     border: 0;
     height: 0;
+    padding: 0;
+    margin: 0;
 }
 
 hr.page
