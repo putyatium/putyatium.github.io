@@ -1,0 +1,113 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@700&family=Nunito+Sans:opsz@6..12&display=swap');
+
+html
+{
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+body
+{
+    font-family: "Nunito Sans", "BIZ UDPGothic", "Meiryo", "Verdana", sans-serif;
+    background: white;
+    border: solid darkgray;
+    border-width: 0 0 0 0.1em;
+    padding: 0;
+}
+
+h1
+{
+    font-size: 100%;
+    padding: 0.1em 0.2em 0.1em 0.2em;
+    margin: 0;
+    background: darkgray;
+    color:white;
+    font-weight: bold;
+}
+
+p
+{
+    margin: 0 0 -0.5em 0;
+    padding: 0.5em 0 0 0.2em;
+    white-space: nowrap;
+    line-height: 240%;
+    color: black;
+    position: relative;
+    display: inline-block;
+}
+
+hr
+{
+    page-break-before: always;
+    width: 100%;
+    border: 0;
+    height: 0;
+    margin: 0;
+    padding: 0 0 0.1em 0;
+    background-color: darkgray;
+}
+
+:not(pre):not(.hljs) > code
+{
+    font-feature-settings: "palt";
+    font-family: "Barlow Semi Condensed", Arial, Helvetica, sans-serif;
+    background-color: cornflowerblue;
+    color: white;
+    font-size: 75%;
+    font-weight: bold;
+    padding: 0;
+    margin: 0 -0.8em 0 0;
+    display: inline-block;
+    min-width: 1.8em;
+    text-align: center;
+    line-height: 100%;
+    position: relative;
+    top: -1.5em;
+    padding: 0 0.2em 0.1em 0.2em;
+    border-radius: 0.3em;
+}
+
+div.border :nth-of-type(2n)
+{
+    border: solid darkgray;
+    border-width: 0 0 0 0.1em;
+}
+
+div.col-2 > p
+{
+    display: inline-block;
+    width: 48%;
+} 
+
+div.border ~ p
+{
+    background: white;
+}
+
+@media screen
+{
+    body
+    {
+        margin: 1em;
+    }
+}
+
+@media screen and (max-width: 576px)
+{
+    body
+    {
+        margin-left: 0;
+        margin-right: 0;
+        border: 0;
+    }
+    :not(div.col-2) > p
+    {
+        white-space: normal;
+    }
+    div.col-2 > p
+    {
+        width: 100%;
+        border: 0 !important;
+    }
+}

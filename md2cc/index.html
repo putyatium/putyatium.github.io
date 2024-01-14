@@ -121,7 +121,7 @@ window.updatepass = (() => {
     }
 });
 
-fetch("./data/toc.txt").then(response =>{
+fetch("../data/toc.txt").then(response =>{
 
     response.text().then(text =>{
 
@@ -177,7 +177,7 @@ fetch("./data/toc.txt").then(response =>{
             a.addEventListener("click", () => {
                 const offcanvas = document.getElementById("offcanvas-songbook");
                 UIkit.offcanvas(offcanvas).hide();
-                download("./data/" + filename);
+                download("../data/" + filename);
             });
             root[i].append(a);
         }
