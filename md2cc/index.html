@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<title>md2cc</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<!-- UIkit CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/css/uikit.min.css" />
+
+<!-- UIkit JS -->
+<script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit-icons.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<link rel="stylesheet" href="./score.css" type="text/css">
+
+<style>
+body
+{
+    overscroll-behavior-y: none;
+}
+
+@media print
+{
+    button
+    {
+        visibility: collapse;
+    }
+}
+</style>
+
+<script type="module">
+
+import { decode } from "./codec.mjs";
+import { reload } from "./trans.mjs";
+
+const salt = "12345678";
+var password = "";
+
+function download(filename)
+{
+    let base = location.href.substring(0, location.href.lastIndexOf("/"));
+
+    let filepath = base + "/" + filename;
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", filepath);
+    xhr.responseType = "arraybuffer";
+    xhr.onload = () => {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            const data = xhr.response;
+            applymain(data);
+        } else {
+            //const data = xhr.response;
+            //let ctrl = document.createElement("");
+            //ctrl.innerText = "fail!";
+            //document.body.prepend(ctrl);
+        }
+    };
+    xhr.send();
+}
+
+var retry  = false;
+var lastdata = null;
+var zoom = false;
+var lastofs = 0;
+
+function applymain(data)
+{
+    lastdata = null;
+    decode(password, salt, data).then(raw =>
+    {
+        const md = new TextDecoder().decode(raw);
+        const main = document.getElementById("main");
+        if(main != null)
+        {
+            main.innerHTML = marked.parse(md);
+            lastofs = 0;
+            main.style.fontSize = "100%";
+            adjustfont();
+        }
+        reload();
+    })
+    .catch(function(value) {
+        console.log(value);
+        console.log(password);
+        const element = document.getElementById("modal-sections");
+        if(element != null)
+        {
+            lastdata = data;
+            UIkit.modal(element).show();
+        }
+    });
+}
+
+const element = document.getElementById("modal-sections");
+if(element != null)
+{
+    element.addEventListener('hidden', () =>{
+        if(retry)
+        {
+            retry = false;
+            if(lastdata != null)
+            {
+                applymain(lastdata);
+            }
+        }
+    });
+}
+
+window.download = (filename => download(filename));
+
+window.updatepass = (() => {
+    const passform = document.getElementById("passinput");
+    password = passform.value;
+
+    if(lastdata != null)
+    {
+        retry = true;
+    }
+});
+
+fetch("./data/toc.txt").then(response =>{
+
+    response.text().then(text =>{
+
+        let toc_html = "";
+        let info_list = text.split("\n");
+
+        for(let i=0; i<info_list.length; i++)
+        {
+            let info = info_list[i].split(":", 2);
+            if(2 <= info.length)
+            {
+                toc_html += `<li data-file="${info[0]}" data-name="${info[1]}"></li>`;
+            }
+        }
+
+        const toc = document.getElementById("toc");
+        if(toc != null)
+        {
+            toc.innerHTML = toc_html;
+        }
+
+        const root = toc.getElementsByTagName("li");
+        for(let i = 0; i < root.length; i++)
+        {
+            const title = root[i].dataset.file.replace(/\.md$/,"");
+
+            let artist = root[i].dataset.name;
+
+            const title_pos = artist.lastIndexOf(title);
+            if(0 < title_pos)
+            {
+                artist = artist.substring(0, title_pos);
+            }
+
+            const result = artist.match(/^(.+) - .*$/);
+            if(result != null)
+            {
+                artist = result[1];
+            }
+            else
+            {
+                artist = "";
+                root[i].dataset.name = "𠮷" + root[i].dataset.name;
+            }
+
+            const a = document.createElement("a");
+            a.classList.add("uk-display-block");
+            a.innerHTML =`<span class="uk-float-left">${artist}</span>${title}`; 
+            a.classList.add("uk-clearfix");
+            a.classList.add("uk-text-right");
+            //a.innerText = root[i].dataset.name;
+            let filename = root[i].dataset.file.replace(".md", ".dat");
+            a.addEventListener("click", () => {
+                const offcanvas = document.getElementById("offcanvas-songbook");
+                UIkit.offcanvas(offcanvas).hide();
+                download("./data/" + filename);
+            });
+            root[i].append(a);
+        }
+
+
+    }).catch(e =>{});
+    
+}).catch(e =>{});
+
+const offcanvas = document.getElementById("offcanvas-songbook");
+offcanvas.addEventListener("hidden", () => adjustfont());
+window.addEventListener("resize", () => adjustfont());
+window.addEventListener("load", () => adjustfont());
+
+function adjustfont()
+{
+    const main = document.getElementById("main");
+    const main_cli = main.clientWidth;
+
+    if(lastofs == undefined ||  lastofs < main_cli)
+    {
+        zoom = true;
+    }
+    lastofs = main_cli;
+
+    let base_size = 100;
+    if(main.style.fontSize != null)
+    {
+        let size = Number(main.style.fontSize.replace("%", ""));
+        if(size != NaN && 0 < size)
+        {
+            base_size = size;
+        }
+    }
+
+    let font_size;
+
+    const col_list = main.getElementsByClassName("col-2");
+    for(const col of col_list)
+    {
+        const p_list = col.getElementsByTagName("p");
+        for(let i = 0; i<p_list.length; i++)
+        {
+            const p_cli = p_list[i].clientWidth;
+            const p_scr = p_list[i].scrollWidth;
+            if(p_cli < p_scr)
+            {
+                const size = base_size * p_cli / p_scr;
+                if(font_size == undefined || size < font_size)
+                {
+                    font_size = size;
+                }
+            }
+            if(col.clientWidth/2 < p_scr)
+            {
+                const size = base_size * (col.clientWidth/2) / p_scr;
+                if(font_size == undefined || size < font_size)
+                {
+                    font_size = size;
+                }
+            }
+        }
+    }
+
+    for (const node of main.childNodes)
+    {
+        const tag = node.tagName;
+        if(tag != "P" && tag != "p") continue;
+
+        const size = base_size * main_cli / node.scrollWidth;
+
+        if(font_size == undefined || size < font_size)
+        {
+            font_size = size;
+        }
+    }
+
+    if(font_size != undefined)
+    {
+        zoom = false;
+        if(200 < font_size)
+        {
+            font_size = 200;
+        }
+        if(font_size < 100)
+        {
+            font_size = 100;
+        }
+        main.style.fontSize = font_size + "%";
+
+        document.getElementById("summary");
+        if(summary != null)
+        {
+            let text = Math.floor(font_size) + "%";
+            if(checkMobile()) text += " (mobile)";
+            summary.innerText = text;
+        }
+    }
+
+    if(zoom)
+    {
+        setTimeout(() =>
+        {
+            const font_size = base_size + 10;
+            if(200 < font_size)
+            {
+                zoom = false;
+                main.style.fontSize = "200%";
+            }
+            else
+            {
+                main.style.fontSize = font_size + "%";
+            }
+            adjustfont();
+        }, 10);
+    }
+}
+
+function checkMobile()
+{
+    const regex = /iPhone|Android.+Mobile/;
+    if(regex.test(window.navigator.userAgent))
+    {
+        return true;
+    }
+    if (window.navigator.userAgentData)
+    {
+        return window.navigator.userAgentData.mobile;
+    }
+    return false;
+}
+
+if(checkMobile())
+{
+document.head.insertAdjacentHTML("beforeend",
+`
+<style>
+body
+{
+    margin-left: 0;
+    margin-right: 0;
+    border: 0;
+}
+:not(div.col-2) > p
+{
+    white-space: normal;
+}
+div.col-2 > p
+{
+    width: 100%;
+    border: 0 !important;
+}
+#main p,h1
+{
+    font-size: 300%;
+}
+#offcanvas-songbook
+{
+    font-size: 200%;
+}
+.uk-offcanvas-flip .uk-open>.uk-offcanvas-bar
+{
+    width: 70%;
+    left: auto;
+}
+.uk-offcanvas-flip >.uk-offcanvas-bar
+{
+    width: 70%;
+    left: -70%;
+}
+</style>
+`);
+
+const navbar = document.getElementById("navbar");
+{
+    const button_list = navbar.getElementsByClassName("uk-button-default");
+    for(const button of button_list)
+    {
+        button.classList.add("uk-button-large");
+    }
+}
+{
+    const button_list = navbar.getElementsByClassName("uk-button-primary");
+    for(const button of button_list)
+    {
+        button.classList.add("uk-button-large");
+    }
+}
+{
+    const button_list = navbar.getElementsByClassName("uk-button-secondry");
+    for(const button of button_list)
+    {
+        button.classList.add("uk-button-large");
+    }
+}
+}
+
+</script>
+
+</head>
+<body>
+
+<div id="main">
+<h1>( ’ - ’)ノ</h1>
+<p style="writing-mode: vertical-rl;">
+素紈不画意高哉<br>
+儻着丹青堕二来<br>
+無一物中無尽蔵<br>
+有花有月有楼臺
+</div>
+
+<div id="offcanvas-songbook" uk-offcanvas="overlay: true; flip: true">
+    <div class="uk-offcanvas-bar scorelist" uk-filter="target: .js-filter">
+        <ul class="uk-subnav uk-subnav-pill">
+            <li class="uk-active" uk-filter-control="sort: data-name"><a href="#">SORT BY ARTIST</a></li>
+            <li uk-filter-control="sort: data-file"><a href="#">SORT BY TITLE </a></li>
+        </ul>
+        <ul class="uk-list js-filter" id="toc">
+        </ul>
+    </div>
+</div>
+
+<div id="modal-sections" uk-modal>
+    <div class="uk-modal-dialog">
+        <button class="uk-modal-close-default" type="button" uk-close></button>
+        <div class="uk-modal-header">
+            <h2 class="uk-modal-title">password?</h2>
+        </div>
+        <div class="uk-modal-body">
+            <form class="uk-margin uk-text-center" onSubmit="updatepass()">
+                <input type="password" class="uk-input uk-form-width-medium" id="passinput"></input>
+                <button type="submit" class="uk-button uk-button-default uk-modal-close" onClick="updatepass()">OK</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="uk-position-fixed uk-position-bottom-right uk-position-small" style="z-index: 20;" id="navbar">
+    <div class="uk-button-group uk-border-rounded uk-box-shadow-medium uk-background-default">
+        <button class="uk-button uk-button-default uk-border-rounded" style="border-top-right-radius: 0; border-bottom-right-radius: 0;" id="flat">♭</button>
+        <div class="uk-inline">
+            <button class="uk-button uk-button-default" style="min-width: 82px;" type="button" id="offset">0</button>
+            <div uk-dropdown="mode: click; target: !.uk-inline; pos: top-center" class="uk-padding-remove">
+                <ul class="uk-nav uk-dropdown-nav uk-list-divider">
+                    <li><button class="uk-button uk-button-link uk-width-1-1 uk-drop-close trans" style="padding-top: 10px;" value="6">+6</button></li>
+                    <li><button class="uk-button uk-button-link uk-width-1-1 uk-drop-close trans" value="5">+5</button></li>
+                    <li><button class="uk-button uk-button-link uk-width-1-1 uk-drop-close trans" value="4">+4</button></li>
+                    <li><button class="uk-button uk-button-link uk-width-1-1 uk-drop-close trans" value="3">+3</button></li>
+                    <li><button class="uk-button uk-button-link uk-width-1-1 uk-drop-close trans" value="2">+2</button></li>
+                    <li><button class="uk-button uk-button-link uk-width-1-1 uk-drop-close trans" value="1">+1</button></li>
+                    <li><button class="uk-button uk-button-link uk-width-1-1 uk-drop-close trans" value="0">0</button></li>
+                    <li><button class="uk-button uk-button-link uk-width-1-1 uk-drop-close trans" value="-1">-1</button></li>
+                    <li><button class="uk-button uk-button-link uk-width-1-1 uk-drop-close trans" value="-2">-2</button></li>
+                    <li><button class="uk-button uk-button-link uk-width-1-1 uk-drop-close trans" value="-3">-3</button></li>
+                    <li><button class="uk-button uk-button-link uk-width-1-1 uk-drop-close trans" value="-4">-4</button></li>
+                    <li><button class="uk-button uk-button-link uk-width-1-1 uk-drop-close trans" value="-5">-5</button></li>
+                    <li><button class="uk-button uk-button-link uk-width-1-1 uk-drop-close trans" style="padding-bottom: 10px" value="-6">-6</button></li>
+                </ul>
+            </div>
+        </div>
+        <button class="uk-button uk-button-default uk-background-default uk-border-rounded" style="border-top-left-radius: 0; border-bottom-left-radius: 0;" id="sharp">♯</button>
+    </div>
+    <button class="uk-button uk-button-primary uk-margin-small-right uk-box-shadow-medium uk-border-rounded" uk-icon="icon: list" type="button" uk-toggle="target: #offcanvas-songbook"></button>
+</div>
+
+<a class="uk-button uk-button-default uk-invisible" href="#modal-sections" uk-toggle>Open</a>
+<span class="uk-button uk-button-default uk-invisible" onClick="download('Apologize.dat')">click here!</span>
+<div id="summary" style="color: silver"></div>
+
+</body>
