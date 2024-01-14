@@ -1,3 +1,4 @@
+import * as crypto from "crypto";
 
 export async function decode(pass, salt, data)
 {
