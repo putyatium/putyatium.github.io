@@ -35,7 +35,7 @@ p
     color: black;
     position: relative;
     display: inline-block;
-    width: 100%;
+    min-width: 51%;
 }
 
 hr
@@ -79,7 +79,8 @@ div.col-2 > p
 {
     display: inline-block;
     width: 48%;
-} 
+    min-width: 48%;
+}
 
 div.border ~ p
 {
