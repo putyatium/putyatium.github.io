@@ -35,6 +35,7 @@ p
     color: black;
     position: relative;
     display: inline-block;
+    width: 100%;
 }
 
 hr
