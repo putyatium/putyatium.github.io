@@ -17,3 +17,4 @@ Writing To Reach You.md:Travis - Writing To Reach You
 猫がニャ～て犬がワンッ.md:猫がニャ～て犬がワンッ.md
 Lemon.md:Adoy - Lemon
 Misery.md:Maroon 5 - Misery
+Colors.md:Black Pumas - Colors
