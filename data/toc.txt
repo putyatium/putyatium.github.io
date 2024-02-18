@@ -19,3 +19,4 @@ Lemon.md:Adoy - Lemon
 Misery.md:Maroon 5 - Misery
 Colors.md:Black Pumas - Colors
 Mary On a Cross.md:Ghost - Mary On a Cross
+Stray.md:Steve Conte - Stray
